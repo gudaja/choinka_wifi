@@ -11,9 +11,11 @@ class LedClass
     }
 
     void initColorWipe(uint32_t c, uint8_t wait);
-
     bool updateColorWipe();
 
+
+    void initTheaterChase(uint32_t c, uint8_t wait);
+    bool updateTheaterChase();
 
 
   private:
