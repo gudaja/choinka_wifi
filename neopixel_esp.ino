@@ -6,9 +6,17 @@
 #include <ESP8266WebServer.h>
 #include <DNSServer.h>
 #include <WiFiManager.h>
+#include "LedClass.h"
+
 Ticker ticker;
 
 Ticker tickerLed;  
+
+Ticker tickerWs;
+
+#define JASNOSC 16
+#define Pixels 78
+
 
 const char* ssid = "lukasz"; //nazwa ssid sieci
 const char* password = "tajne123"; //haslo
@@ -24,6 +32,11 @@ unsigned int localUdpPort = 4210;  // local port to listen on
 char incomingPacket[255];  // buffer for incoming packets
 char  replyPacket[] = "esp8266 led";  // a reply string to send back
 bool initialConfig = false;
+
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(Pixels, PIN, NEO_GRB + NEO_KHZ800);
+
+LedClass ledDriver = LedClass(&strip);
 
 void tick()
 {
@@ -41,7 +54,22 @@ void tickLed()
   digitalWrite(BUILTIN_LED, !state);     // set pin to the opposite state
 }
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(5, PIN, NEO_GRB + NEO_KHZ800);
+void initWipe()
+{
+        uint8_t cloR = random(0, JASNOSC);
+        uint8_t cloG = random(0, JASNOSC);
+        uint8_t cloB = random(0, JASNOSC);
+
+        ledDriver.initColorWipe(strip.Color(cloR, cloG, cloB),10);
+}
+
+void tickWs()
+{
+  if(ledDriver.updateColorWipe())
+  {
+    initWipe();
+  }
+}
 
 WiFiServer server(80);
 
@@ -93,6 +121,8 @@ void setup() {
     server.begin();
   }
 
+    initWipe();
+tickerWs.attach(0.01, tickWs);
  
 //  //Laczenie z siecia wifi
 //  Serial.println();
