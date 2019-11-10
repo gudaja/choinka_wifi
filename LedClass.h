@@ -26,6 +26,9 @@ class LedClass
     void initTheaterChaseRainbow(uint8_t wait);
     bool updateTheaterChaseRainbow();
 
+    void initLinijka(uint8_t wait);
+    bool updateLinijka();
+
   private:
     uint32_t tick;
     
@@ -40,4 +43,13 @@ class LedClass
     uint32_t Wheel(byte WheelPos);
 
     uint32_t _jasnosc;
+
+    uint8_t cloR;
+    uint8_t cloG;
+    uint8_t cloB;
+
+    uint8_t colNegR;
+    uint8_t colNegG;
+    uint8_t colNegB;
+    
 };

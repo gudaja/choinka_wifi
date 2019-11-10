@@ -155,6 +155,57 @@ bool LedClass::updateTheaterChaseRainbow()
   return licznik2 > 256;
 }
 
+void LedClass::initLinijka(uint8_t wait)
+{
+  tick = 0;
+
+  cloR = random(0, _jasnosc);
+  cloG = random(0, _jasnosc);
+  cloB = random(0, _jasnosc);
+
+  colNegR = _jasnosc - cloR;
+  colNegG = _jasnosc - cloG;
+  colNegB = _jasnosc - cloB;
+  
+  colorWipe = _strip->Color(cloR, cloG, cloB);
+  delays = wait;
+
+  licznik = 0;
+  licznik2 = 0;
+
+  for(uint16_t i=0; i < _strip->numPixels(); i++) {
+     _strip->setPixelColor(i, colorWipe);
+  }
+  _strip->show();
+}
+
+bool LedClass::updateLinijka()
+{
+  tick++;
+  
+  {
+    for(int16_t j=0;j<_strip->numPixels();j++) {
+
+      if(((int16_t)licznik-(int16_t)j)<5&&((int16_t)licznik-(int16_t)j)>-5)
+      {
+        int16_t procent = 100 - map( abs((int16_t)tick-((int16_t)j*10)),0,50,0,100);
+        _strip->setPixelColor(j, _strip->Color(map( procent,0,100,cloR,colNegR), map( procent,0,100,cloG,colNegG), map( procent,0,100,cloB,colNegB)));
+      }
+      else
+      {
+        _strip->setPixelColor(j, colorWipe);
+      }
+    }
+     _strip->show();
+     
+    if(tick%10 == 0)
+    {
+      licznik++;
+    }
+  }
+  return licznik > _strip->numPixels();
+}
+
 // Input a value 0 to 255 to get a color value.
 // The colours are a transition r - g - b - back to r.
 uint32_t LedClass::Wheel(byte WheelPos) {

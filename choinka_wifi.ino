@@ -74,9 +74,9 @@ void initTheater()
 
 void tickWs()
 {
-  if(ledDriver.updateTheaterChaseRainbow())
+  if(ledDriver.updateLinijka())
   {
-    ledDriver.initTheaterChaseRainbow(10);
+    ledDriver.initLinijka(10);
   }
 }
 
@@ -131,7 +131,7 @@ void setup() {
   }
 
 //    initTheater();
-ledDriver.initTheaterChaseRainbow(10);
+ledDriver.initLinijka(10);
 tickerWs.attach(0.01, tickWs);
  
 //  //Laczenie z siecia wifi
