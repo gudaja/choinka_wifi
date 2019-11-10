@@ -29,6 +29,9 @@ class LedClass
     void initLinijka(uint8_t wait);
     bool updateLinijka();
 
+    void initSnieg(uint8_t wait);
+    bool updateSnieg();
+
   private:
     uint32_t tick;
     
@@ -41,6 +44,8 @@ class LedClass
     Adafruit_NeoPixel* _strip;
 
     uint32_t Wheel(byte WheelPos);
+    
+    void printAdr(int8_t nrDiody,int8_t nrPierscienia,uint32_t color);
 
     uint32_t _jasnosc;
 
@@ -51,5 +56,7 @@ class LedClass
     uint8_t colNegR;
     uint8_t colNegG;
     uint8_t colNegB;
+
+    int8_t tabSnieg[12];
     
 };

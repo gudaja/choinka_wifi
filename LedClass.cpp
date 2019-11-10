@@ -197,13 +197,75 @@ bool LedClass::updateLinijka()
       }
     }
      _strip->show();
-     
+
     if(tick%10 == 0)
     {
       licznik++;
     }
   }
   return licznik > _strip->numPixels();
+}
+
+void LedClass::initSnieg(uint8_t wait)
+{
+  tick = 0;
+  
+  colorWipe = 0;
+  delays = random(1,5);;
+
+  licznik = 0;
+  licznik2 = 0;
+
+  for(uint16_t i=0; i < _strip->numPixels(); i++) {
+     _strip->setPixelColor(i, 0);
+  }
+  _strip->show();
+
+  for(uint8_t i=0;i<12;i++){
+    tabSnieg[i]=-1;
+  }
+
+  uint8_t adr = random(0, 12);
+  tabSnieg[adr]=0;
+}
+
+bool LedClass::updateSnieg()
+{
+  tick++;
+
+  if(tick%20 == 0)
+  {
+     if(delays==0){
+      uint8_t adr = random(0, 12);
+      if(tabSnieg[adr]==-1){
+        tabSnieg[adr]=0;
+      }
+      delays = random(1,5);
+    }
+    
+    for(uint8_t i=0;i<12;i++){
+      if(tabSnieg[i]>=0 && tabSnieg[i] < 7){
+        printAdr(i,tabSnieg[i]-1,0);
+        printAdr(i,tabSnieg[i],_strip->Color(0, 0, _jasnosc));
+      }
+      else{
+        tabSnieg[i]=-1;
+      }
+    }
+
+    for(uint8_t i=0;i<12;i++){
+      if(tabSnieg[i]>=0)
+      {
+        tabSnieg[i]++;
+      }
+    }
+
+    delays--;
+
+    _strip->show();
+  }
+
+  return tick > 3000;
 }
 
 // Input a value 0 to 255 to get a color value.
@@ -220,4 +282,33 @@ uint32_t LedClass::Wheel(byte WheelPos) {
   }
   WheelPos -= 170;
   return _strip->Color(  map(WheelPos * 3,0,255,0,_jasnosc),   map(255 - WheelPos * 3,0,255,0,_jasnosc), 0);
+}
+
+void LedClass::printAdr(int8_t nrDiody,int8_t nrPierscienia,uint32_t color)
+{
+  if(nrPierscienia == 0)
+  {
+    if((nrDiody%2)==1)
+    {
+      if(nrDiody==1)
+      {
+        _strip->setPixelColor(0,color);
+      }
+      else
+      {
+        uint8_t nr = nrDiody/2;
+        _strip->setPixelColor(nr,color);
+      }
+    }
+  }
+  else if(nrPierscienia < 7)
+  {
+      uint8_t licznikPierscienia = 0;
+      if(nrPierscienia>1)
+      {
+        licznikPierscienia = (nrPierscienia-1)*12;
+      }
+      uint8_t nr = nrDiody + licznikPierscienia + 6;
+      _strip->setPixelColor(nr,color);
+  }
 }
