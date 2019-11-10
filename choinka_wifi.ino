@@ -36,7 +36,7 @@ bool initialConfig = false;
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(Pixels, PIN, NEO_GRB + NEO_KHZ800);
 
-LedClass ledDriver = LedClass(&strip);
+LedClass ledDriver = LedClass(&strip,JASNOSC);
 
 void tick()
 {
@@ -63,11 +63,20 @@ void initWipe()
         ledDriver.initColorWipe(strip.Color(cloR, cloG, cloB),10);
 }
 
+void initTheater()
+{
+        uint8_t cloR = random(0, JASNOSC);
+        uint8_t cloG = random(0, JASNOSC);
+        uint8_t cloB = random(0, JASNOSC);
+
+        ledDriver.initTheaterChase(strip.Color(cloR, cloG, cloB),5);
+}
+
 void tickWs()
 {
-  if(ledDriver.updateColorWipe())
+  if(ledDriver.updateTheaterChaseRainbow())
   {
-    initWipe();
+    ledDriver.initTheaterChaseRainbow(10);
   }
 }
 
@@ -121,7 +130,8 @@ void setup() {
     server.begin();
   }
 
-    initWipe();
+//    initTheater();
+ledDriver.initTheaterChaseRainbow(10);
 tickerWs.attach(0.01, tickWs);
  
 //  //Laczenie z siecia wifi
@@ -229,11 +239,11 @@ void loop() {
 
       Serial.println(String("wynik: r ") + String(rw) + String("g ") + String(gw) + String("b ") + String(bw));
 
-      for(uint16_t i=0; i<4; i++) 
+      for(uint16_t i=0; i<Pixels; i++) 
       {
         strip.setPixelColor(i, rw,gw,bw);
-        strip.show();
       }
+      strip.show();
    }
    
 

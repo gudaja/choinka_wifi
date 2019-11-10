@@ -5,26 +5,39 @@ class LedClass
 {
   public:
 
-    LedClass(Adafruit_NeoPixel* strip)
+    LedClass(Adafruit_NeoPixel* strip,uint32_t jasnosc)
     {
       _strip = strip;
+      _jasnosc = jasnosc;
     }
 
     void initColorWipe(uint32_t c, uint8_t wait);
     bool updateColorWipe();
 
-
     void initTheaterChase(uint32_t c, uint8_t wait);
     bool updateTheaterChase();
 
+    void initRainbow(uint8_t wait);
+    bool updateRainbow();
+    
+    void initRainbowCycle(uint8_t wait);
+    bool updateRainbowCycle();
+    
+    void initTheaterChaseRainbow(uint8_t wait);
+    bool updateTheaterChaseRainbow();
 
   private:
     uint32_t tick;
     
     uint32_t colorWipe;
-    uint32_t delayMs;
+    uint32_t delays;
 
     uint32_t licznik;
+    uint32_t licznik2;
 
     Adafruit_NeoPixel* _strip;
+
+    uint32_t Wheel(byte WheelPos);
+
+    uint32_t _jasnosc;
 };
