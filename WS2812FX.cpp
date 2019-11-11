@@ -1595,6 +1595,27 @@ uint16_t WS2812FX::mode_custom_2() {
 uint16_t WS2812FX::mode_custom_3() {
   return customModes[3]();
 }
+uint16_t WS2812FX::mode_custom_4() {
+  return customModes[4]();
+}
+uint16_t WS2812FX::mode_custom_5() {
+  return customModes[5]();
+}
+uint16_t WS2812FX::mode_custom_6() {
+  return customModes[6]();
+}
+uint16_t WS2812FX::mode_custom_7() {
+  return customModes[7]();
+}
+uint16_t WS2812FX::mode_custom_8() {
+  return customModes[8]();
+}
+uint16_t WS2812FX::mode_custom_9() {
+  return customModes[9]();
+}
+uint16_t WS2812FX::mode_custom_10() {
+  return customModes[10]();
+}
 
 /*
  * Custom mode helpers

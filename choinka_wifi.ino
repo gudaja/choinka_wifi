@@ -12,22 +12,25 @@
 // include the custom effects
 #include "custom/BlockDissolve.h"
 #include "custom/DualLarson.h"
+#include "custom/Fillerup.h"
 #include "custom/MultiComet.h"
 #include "custom/Oscillate.h"
+#include "custom/Popcorn.h"
+#include "custom/Rain.h"
+#include "custom/RainbowFireworks.h"
 #include "custom/RainbowLarson.h"
 #include "custom/RandomChase.h"
 #include "custom/TriFade.h"
 #include "custom/VUMeter.h"
 
 Ticker ticker;
-
 Ticker tickerLed;  
 
 #define JASNOSC 16
 #define Pixels 78
 
 #define DEFAULT_COLOR GREEN
-#define DEFAULT_BRIGHTNESS 50
+#define DEFAULT_BRIGHTNESS 15
 #define DEFAULT_SPEED 1000
 #define DEFAULT_MODE FX_MODE_STATIC
 
@@ -74,32 +77,6 @@ void tickLed()
   digitalWrite(BUILTIN_LED, !state);     // set pin to the opposite state
 }
 
-void initWipe()
-{
-        uint8_t cloR = random(0, JASNOSC);
-        uint8_t cloG = random(0, JASNOSC);
-        uint8_t cloB = random(0, JASNOSC);
-
-//        ledDriver.initColorWipe(strip.Color(cloR, cloG, cloB),10);
-}
-
-void initTheater()
-{
-        uint8_t cloR = random(0, JASNOSC);
-        uint8_t cloG = random(0, JASNOSC);
-        uint8_t cloB = random(0, JASNOSC);
-
-//        ledDriver.initTheaterChase(strip.Color(cloR, cloG, cloB),5);
-}
-
-//void tickWs()
-//{
-//  if(ledDriver.updateColorTwinkle())
-//  {
-//    ledDriver.initColorTwinkle(10);
-//  }
-//}
-
 ESP8266WebServer  server(80);
 
 long aniMillis=0;
@@ -122,18 +99,31 @@ void setup() {
   ws2812fx.init();
   ws2812fx.setMode(DEFAULT_MODE);
   ws2812fx.setSpeed(DEFAULT_SPEED);
+  ws2812fx.setBrightness(DEFAULT_BRIGHTNESS);
 
   // setup the custom effects
-  uint8_t dualLarsonMode  = ws2812fx.setCustomMode(F("Dual Larson"), dualLarson);
 
-  uint32_t colors[] = {RED, GREEN, WHITE};
-//
-//  ws2812fx.setSegment(0, 0, Pixels - 1, dualLarsonMode, colors, 2000, FADE_SLOW);
+  uint8_t modedissolve  =  ws2812fx.setCustomMode(F("blockDissolve"), blockDissolve);
+  uint8_t modedualLarsonMode  = ws2812fx.setCustomMode(F("Dual Larson"), dualLarson);
+  uint8_t modefillerup  = ws2812fx.setCustomMode(F("fillerup"), fillerup);
+  uint8_t modemultiComet  = ws2812fx.setCustomMode(F("multiComet"), multiComet);
+  uint8_t modeoscillate  = ws2812fx.setCustomMode(F("oscillate"), oscillate);
+  uint8_t modepopcorn  = ws2812fx.setCustomMode(F("popcorn"), popcorn);
+  uint8_t moderain  = ws2812fx.setCustomMode(F("rain"), rain);
+  uint8_t moderainbowFireworks  = ws2812fx.setCustomMode(F("rainbowFireworks"), rainbowFireworks);
+  uint8_t moderandomChase  = ws2812fx.setCustomMode(F("randomChase"), randomChase);
+  uint8_t modetriFade  = ws2812fx.setCustomMode(F("triFade"), triFade);
+
+      
 
   ws2812fx.setColor(DEFAULT_COLOR);
   ws2812fx.start();
 
-  modes.reserve(5000);
+  uint8_t num_modes = ws2812fx.getModeCount();
+  Serial.print(" ModeCount: ");
+  Serial.println(num_modes);
+
+  modes.reserve(6000);
   modes_setup();  
 
 
@@ -170,14 +160,6 @@ void setup() {
     server.onNotFound(srv_handle_not_found);
     server.begin();
   }
-
-//    initTheater();
-//ledDriver.initColorTwinkle(10);
-//tickerWs.attach(0.01, tickWs);
- 
-//
-//   Udp.begin(localUdpPort);
-//   ticker.attach(5, tick);
 }
  
 void loop() {
@@ -187,35 +169,38 @@ void loop() {
   server.handleClient();
   ws2812fx.service();
 
-  if(auto_cycle && (now - auto_last_change > 10000)) { // cycle effect mode every 10 seconds
+  if(auto_cycle && (now - auto_last_change > 15000)) { // cycle effect mode every 15 seconds
+    uint8_t cloR = random(0, 255);
+    uint8_t cloG = random(0, 255);
+    uint8_t cloB = random(0, 255);
+    ws2812fx.setColor(ws2812fx.Color(cloR, cloG, cloB));
     uint8_t next_mode = (ws2812fx.getMode() + 1) % ws2812fx.getModeCount();
     ws2812fx.setMode(next_mode);
-    Serial.print("mode is "); Serial.println(ws2812fx.getModeName(ws2812fx.getMode()));
+    Serial.print("mode is "); Serial.print(next_mode);Serial.print(" ");Serial.println(ws2812fx.getModeName(ws2812fx.getMode()));
     auto_last_change = now;
   }
 
 
-    if ( !(digitalRead(TRIGGER_PIN) == LOW)  || (initialConfig)) {
+  if ( !(digitalRead(TRIGGER_PIN) == LOW)  || (initialConfig)) {
       server.stop();
-     Serial.println("Configuration portal requested.");
-//     digitalWrite(PIN_LED, LOW); // turn the LED on by making the voltage LOW to tell us we are in configuration mode.
-    tickerLed.attach(0.6, tickLed);
-    //Local intialization. Once its business is done, there is no need to keep it around
-    WiFiManager wifiManager;
-    
-    if (!wifiManager.startConfigPortal()) {
-      Serial.println("Not connected to WiFi but continuing anyway.");
-    } else {
-      //if you get here you have connected to the WiFi
-      Serial.println("connected...yeey :)");
-    }
-
-    Serial.println("#################### wyjscie ###############################################");
-    
-    digitalWrite(PIN_LED, HIGH); // Turn led off as we are not in configuration mode.
-    ESP.reset(); // This is a bit crude. For some unknown reason webserver can only be started once per boot up 
-    // so resetting the device allows to go back into config mode again when it reboots.
-    delay(5000);
+      Serial.println("Configuration portal requested.");
+      tickerLed.attach(0.6, tickLed);
+      //Local intialization. Once its business is done, there is no need to keep it around
+      WiFiManager wifiManager;
+      
+      if (!wifiManager.startConfigPortal()) {
+        Serial.println("Not connected to WiFi but continuing anyway.");
+      } else {
+        //if you get here you have connected to the WiFi
+        Serial.println("connected...yeey :)");
+      }
+  
+      Serial.println("#################### wyjscie ###############################################");
+      
+      digitalWrite(PIN_LED, HIGH); // Turn led off as we are not in configuration mode.
+      ESP.reset(); // This is a bit crude. For some unknown reason webserver can only be started once per boot up 
+      // so resetting the device allows to go back into config mode again when it reboots.
+      delay(5000);
   }
 
 // while (WiFi.status() == WL_CONNECTED){
@@ -469,6 +454,10 @@ void srv_handle_set() {
     }
 
     if(server.argName(i) == "m") {
+      uint8_t cloR = random(0, 255);
+      uint8_t cloG = random(0, 255);
+      uint8_t cloB = random(0, 255);
+      ws2812fx.setColor(ws2812fx.Color(cloR, cloG, cloB));
       uint8_t tmp = (uint8_t) strtol(server.arg(i).c_str(), NULL, 10);
       ws2812fx.setMode(tmp % ws2812fx.getModeCount());
       Serial.print("mode is "); Serial.println(ws2812fx.getModeName(ws2812fx.getMode()));
