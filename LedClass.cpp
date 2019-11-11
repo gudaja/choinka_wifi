@@ -1,5 +1,7 @@
 #include "LedClass.h"
 
+const uint16_t  LedClass::Pixels;
+const float  LedClass::fadeRate = 0.98;
 
 void LedClass::initColorWipe(uint32_t c, uint8_t wait)
 {
@@ -266,6 +268,77 @@ bool LedClass::updateSnieg()
   }
 
   return tick > 3000;
+}
+
+void LedClass::initColorTwinkle(uint8_t wait)
+{
+  tick = 0;
+  
+  colorWipe = 0;
+  delays = random(1,5);;
+
+  licznik = 0;
+  licznik2 = 0;
+
+  for(uint16_t i=0; i < _strip->numPixels(); i++) {
+     _strip->setPixelColor(i, 0);
+  }
+  _strip->show();
+
+  for(uint16_t l = 0; l < Pixels; l++) {
+    redStates[l] = 0;
+    greenStates[l] = 0;
+    blueStates[l] = 0;
+  }
+
+}
+
+bool LedClass::updateColorTwinkle()
+{
+  tick++;
+
+//  if(tick%20 == 0)
+  {
+   if (random(10) == 1) {
+      uint16_t i = random(Pixels);
+      if (redStates[i] < 1 && greenStates[i] < 1 && blueStates[i] < 1) {
+        redStates[i] = random(32);
+        greenStates[i] = random(32);
+        blueStates[i] = random(32);
+      }
+    }
+
+    for(uint16_t l = 0; l < Pixels; l++) {
+      if (redStates[l] > 1 || greenStates[l] > 1 || blueStates[l] > 1) {
+        _strip->setPixelColor(l, redStates[l], greenStates[l], blueStates[l]);
+        
+        if (redStates[l] > 1) {
+          redStates[l] = redStates[l] * fadeRate;
+        } else {
+          redStates[l] = 0;
+        }
+        
+        if (greenStates[l] > 1) {
+          greenStates[l] = greenStates[l] * fadeRate;
+        } else {
+          greenStates[l] = 0;
+        }
+        
+        if (blueStates[l] > 1) {
+          blueStates[l] = blueStates[l] * fadeRate;
+        } else {
+          blueStates[l] = 0;
+        }
+        
+      } else {
+        _strip->setPixelColor(l, 0, 0, 0);
+      }
+    }
+
+    _strip->show();
+  }
+
+  return tick > 2000;
 }
 
 // Input a value 0 to 255 to get a color value.

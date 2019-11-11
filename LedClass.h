@@ -5,6 +5,9 @@ class LedClass
 {
   public:
 
+    static const uint16_t Pixels = 78;
+    static const float fadeRate;
+
     LedClass(Adafruit_NeoPixel* strip,uint32_t jasnosc)
     {
       _strip = strip;
@@ -32,6 +35,9 @@ class LedClass
     void initSnieg(uint8_t wait);
     bool updateSnieg();
 
+    void initColorTwinkle(uint8_t wait);
+    bool updateColorTwinkle();
+
   private:
     uint32_t tick;
     
@@ -58,5 +64,9 @@ class LedClass
     uint8_t colNegB;
 
     int8_t tabSnieg[12];
+
+    float redStates[Pixels];
+    float blueStates[Pixels];
+    float greenStates[Pixels];
     
 };

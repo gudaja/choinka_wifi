@@ -74,9 +74,9 @@ void initTheater()
 
 void tickWs()
 {
-  if(ledDriver.updateSnieg())
+  if(ledDriver.updateColorTwinkle())
   {
-    ledDriver.initSnieg(10);
+    ledDriver.initColorTwinkle(10);
   }
 }
 
@@ -131,7 +131,7 @@ void setup() {
   }
 
 //    initTheater();
-ledDriver.initSnieg(10);
+ledDriver.initColorTwinkle(10);
 tickerWs.attach(0.01, tickWs);
  
 //  //Laczenie z siecia wifi
