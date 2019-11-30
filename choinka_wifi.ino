@@ -40,9 +40,6 @@ Ticker tickerLed;
 boolean auto_cycle = true;
 unsigned long auto_last_change = 0;
 
-const char* ssid = "lukasz"; //nazwa ssid sieci
-const char* password = "tajne123"; //haslo
-
 #define PIN 14 //pin do podlaczenia diod adresowanych
 
 const int PIN_LED = BUILTIN_LED;
@@ -78,10 +75,6 @@ void tickLed()
 }
 
 ESP8266WebServer  server(80);
-
-long aniMillis=0;
-byte aniFlag=0;
-
 
 void setup() {
   Serial.begin(115200);
@@ -161,24 +154,59 @@ void setup() {
     server.begin();
   }
 }
+
+void nextAnim()
+{
+    uint8_t cloR = random(255);
+    uint8_t cloG = random(255);
+    uint8_t cloB = random(255);
+
+    Serial.print("color "); Serial.println(ws2812fx.Color(cloR, cloG, cloB));
+    uint8_t next_mode = (ws2812fx.getMode() + 1) % ws2812fx.getModeCount();
+    ws2812fx.setMode(next_mode);
+    ws2812fx.setColor(ws2812fx.Color(cloR, cloG, cloB));
+    Serial.print("mode is "); Serial.print(next_mode);Serial.print(" ");Serial.println(ws2812fx.getModeName(ws2812fx.getMode()));
+    auto_last_change = millis();
+}
+
+void prevAnim()
+{
+    uint8_t cloR = random(255);
+    uint8_t cloG = random(255);
+    uint8_t cloB = random(255);
+
+    Serial.print("color "); Serial.println(ws2812fx.Color(cloR, cloG, cloB));
+    uint8_t next_mode = (ws2812fx.getMode() - 1) % ws2812fx.getModeCount();
+    ws2812fx.setMode(next_mode);
+    ws2812fx.setColor(ws2812fx.Color(cloR, cloG, cloB));
+    Serial.print("mode is "); Serial.print(next_mode);Serial.print(" ");Serial.println(ws2812fx.getModeName(ws2812fx.getMode()));
+    auto_last_change = millis();
+}
  
 void loop() {
   
   unsigned long now = millis();
 
-  server.handleClient();
-  ws2812fx.service();
-
   if(auto_cycle && (now - auto_last_change > 15000)) { // cycle effect mode every 15 seconds
-    uint8_t cloR = random(0, 255);
-    uint8_t cloG = random(0, 255);
-    uint8_t cloB = random(0, 255);
-    ws2812fx.setColor(ws2812fx.Color(cloR, cloG, cloB));
-    uint8_t next_mode = (ws2812fx.getMode() + 1) % ws2812fx.getModeCount();
+    uint8_t cloR = random(255);
+    uint8_t cloG = random(255);
+    uint8_t cloB = random(255);
+
+    Serial.print("color "); Serial.println(ws2812fx.Color(cloR, cloG, cloB));
+    uint8_t next_mode =  random(0, ws2812fx.getModeCount());
+//    uint8_t next_mode = (ws2812fx.getMode() + 1) % ws2812fx.getModeCount();
     ws2812fx.setMode(next_mode);
+//    ws2812fx.setMode(0);
+    ws2812fx.setColor(ws2812fx.Color(cloR, cloG, cloB));
+//    ws2812fx.setColor(DEFAULT_COLOR);
     Serial.print("mode is "); Serial.print(next_mode);Serial.print(" ");Serial.println(ws2812fx.getModeName(ws2812fx.getMode()));
     auto_last_change = now;
   }
+
+  server.handleClient();
+  ws2812fx.service();
+
+
 
 
   if ( !(digitalRead(TRIGGER_PIN) == LOW)  || (initialConfig)) {
@@ -202,209 +230,6 @@ void loop() {
       // so resetting the device allows to go back into config mode again when it reboots.
       delay(5000);
   }
-
-// while (WiFi.status() == WL_CONNECTED){
-//   
-//  WiFiClient client = server.available();
-//  if (!client) {
-//    return;
-//  }
-// 
-//  // Poczekaj na odbior danych
-//  Serial.println("new client");
-//  while(!client.available()){
-//    delay(1);
-//  }
-// 
-//  String request = client.readStringUntil('\r');
-//  Serial.println(request);
-//  client.flush();
-// 
-//  //Dopasuj zadanie
-//
-//  //kolor z zapytania
-//   MatchState ms;
-//   char charBuf[50];
-//   request.toCharArray(charBuf, 50);
-//   ms.Target(charBuf);
-//
-//   if(ms.Match ("(/color)", 0))
-//   {
-//      ms.Match ("r=(%d+)&g=(%d+)&b=(%d+)&a=(%d+)", 0);
-//      char buf [100];
-//      int r = 0;
-//      int g = 0;
-//      int b = 0;
-//      int a = 0;
-//      ms.GetCapture (buf, 0);
-//      r = atoi(buf);
-//      ms.GetCapture (buf, 1);
-//      g = atoi(buf);
-//      ms.GetCapture (buf, 2);
-//      b = atoi(buf);
-//      ms.GetCapture (buf, 3);
-//      a = atoi(buf);
-//
-//      int rw =  map(r, 0, 255, 0, a);
-//      int gw =  map(g, 0, 255, 0, a);
-//      int bw =  map(b, 0, 255, 0, a);
-//
-//
-//      Serial.println(String("wynik: r ") + String(rw) + String("g ") + String(gw) + String("b ") + String(bw));
-//
-////      for(uint16_t i=0; i<Pixels; i++) 
-////      {
-////        strip.setPixelColor(i, rw,gw,bw);
-////      }
-////      strip.show();
-//   }
-//   
-//
-//  //wlaczenie ulubionego koloru lampki
-//  if (request.indexOf("/turnOn") > 0)  
-//  {
-////    for(uint16_t i=0; i<2; i++) 
-////      {
-////        strip.setPixelColor(i, 255,120,0);
-////        strip.show();
-////      }
-//   
-//  }
-//
-//  //wylaczanie lampki
-//  if (request.indexOf("/turnOff") >0)  
-//  {
-////      for(uint16_t i=0; i<strip.numPixels(); i++) 
-////      {
-////        strip.setPixelColor(i, 0);
-////        strip.show();
-////      }
-//  }
-//
-//  //wlaczenie animacji
-//  if (request.indexOf("/animationOn") > 0)  
-//  {
-//    aniMillis=millis();
-//    rainbowCycle(20);
-//    aniFlag=1;
-//  }
-//  
-//  if (request.indexOf("/animationOff") >0) 
-//  {
-////    aniFlag=0;
-////    for(uint16_t i=0; i<strip.numPixels(); i++) 
-////    {
-////        strip.setPixelColor(i, 0);
-////        strip.show();
-////    }
-//  }
-//  
-//  //wyswietlanie koloru bialego
-//  if (request.indexOf("/white") > 0)  
-//  {   
-////      for(uint16_t i=0; i<strip.numPixels(); i++) 
-////      {
-////        strip.setPixelColor(i, 255,255,255);
-////        strip.show();
-////      }
-//  }
-//
-//  //wyswietlanie koloru czerwonego
-//  if (request.indexOf("/red") > 0)  
-//  {   
-////    for(uint16_t i=0; i<strip.numPixels(); i++) 
-////      {
-////        strip.setPixelColor(i, 255,0,0);
-////        strip.show();
-////      }
-//  }
-//
-//  //wyswietlanie koloru zielonego
-//  if (request.indexOf("/green") > 0)  
-//  { 
-////   for(uint16_t i=0; i<strip.numPixels(); i++) 
-////      {
-////        strip.setPixelColor(i, 0,255,0);
-////        strip.show();
-////      }
-//  }
-//
-//  //wyswietlanie koloru niebieskiego
-//  if (request.indexOf("/blue") > 0)  
-//  { 
-////   for(uint16_t i=0; i<strip.numPixels(); i++) 
-////      {
-////        strip.setPixelColor(i, 0,0,255);
-////        strip.show();
-////      }
-//  }
-//
-//
-//  //wylaczanie animacji po okreslonym czasie
-//  if (aniFlag==1)
-//  {
-////    if (millis()-aniMillis>3000)
-////    {
-////      for(uint16_t i=0; i<strip.numPixels(); i++) 
-////      {
-////        strip.setPixelColor(i, 0);
-////        strip.show();
-////        delay(10);
-////      }
-////      Serial.println("Wylaczam");
-////      aniFlag=0;
-////    }
-//  }
-// 
-//  //Zwroc odpowiedz
-//  client.println("HTTP/1.1 200 OK");
-//  client.println("Content-Type: text/html");
-//  client.println(""); //  do not forget this one
-//  client.println("<!DOCTYPE HTML>");
-//  client.println("<html>");
-//  client.println("<head>");
-//  client.println("<meta name='apple-mobile-web-app-capable' content='yes' />");
-//  client.println("<meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />");
-//  client.println("</head>");
-//  client.println("<body bgcolor = \"#dddddd\">"); 
-//  client.println("<hr/><hr>");
-//  client.println("<h4><center> Panel kontrolny lampki LED </center></h4>");
-//  client.println("<hr/><hr>");
-//  client.println("<br><br>");
-//  client.println("<br><br>");
-//  client.println("<center>");
-//  client.println("Zaswiec");
-//  client.println("<a href=\"/turnOn\"\"><button>Wlacz </button></a>");
-//  client.println("<a href=\"/turnOff\"\"><button>Wylacz </button></a><br />");  
-//  client.println("</center>");   
-//  client.println("<br><br>");
-//  client.println("<center>");
-//  client.println("Animacja");
-//  client.println("<a href=\"/animationOn\"\"><button>Wlacz</button></a>");
-//  client.println("<a href=\"/animationOff\"\"><button>Wylacz</button></a><br />");  
-//
-//  client.println("</center>"); 
-//  client.println("<br><br>");
-//  client.println("<center>");
-//  client.println("Kolor");
-//  client.println("<a href=\"/red\"\"><button>Czerwony</button></a>");
-//  client.println("<a href=\"/green\"\"><button>Zielony</button></a>");  
-//  client.println("<a href=\"/blue\"\"><button>Niebieski</button></a>"); 
-//  client.println("<a href=\"/white\"\"><button>Bialy</button></a><br />"); 
-//
-//  client.println("</center>"); 
-//  client.println("<center>");
-//   
-//  client.println("<br><br>");
-//  client.println("<center>");
-//  
-//  client.println("</html>"); 
-//  delay(1);
-//  Serial.println("Client disonnected");
-//  Serial.println("");
-// }
-//
-//setup(); //ponowne laczenie z siecia wifi w przypadku rozlaczenia
 
 }
 
@@ -461,6 +286,16 @@ void srv_handle_set() {
       uint8_t tmp = (uint8_t) strtol(server.arg(i).c_str(), NULL, 10);
       ws2812fx.setMode(tmp % ws2812fx.getModeCount());
       Serial.print("mode is "); Serial.println(ws2812fx.getModeName(ws2812fx.getMode()));
+    }
+
+    if(server.argName(i) == "k") {
+      if(server.arg(i)[0] == '-') {
+        Serial.println("k prev");
+        prevAnim();
+      } else {
+        Serial.println("k next");
+        nextAnim();
+      }
     }
 
     if(server.argName(i) == "b") {
