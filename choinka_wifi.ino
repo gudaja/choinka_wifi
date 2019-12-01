@@ -90,7 +90,7 @@ void setup() {
 
   Serial.println("WS2812FX setup");
   ws2812fx.init();
-  ws2812fx.setMode(DEFAULT_MODE);
+  ws2812fx.setMode(16);
   ws2812fx.setSpeed(DEFAULT_SPEED);
   ws2812fx.setBrightness(DEFAULT_BRIGHTNESS);
 
@@ -182,6 +182,21 @@ void prevAnim()
     Serial.print("mode is "); Serial.print(next_mode);Serial.print(" ");Serial.println(ws2812fx.getModeName(ws2812fx.getMode()));
     auto_last_change = millis();
 }
+
+// Input a value 0 to 255 to get a color value.
+// The colours are a transition r - g - b - back to r.
+uint32_t Wheel(byte WheelPos) {
+  WheelPos = 255 - WheelPos;
+  if(WheelPos < 85) {
+    return ws2812fx.Color(255 - WheelPos * 3, 0,WheelPos * 3);
+  }
+  if(WheelPos < 170) {
+    WheelPos -= 85;
+    return ws2812fx.Color(0, WheelPos * 3,255 - WheelPos * 3);
+  }
+  WheelPos -= 170;
+  return ws2812fx.Color(  WheelPos * 3,255 - WheelPos * 3, 0);
+}
  
 void loop() {
   
@@ -192,13 +207,13 @@ void loop() {
     uint8_t cloG = random(255);
     uint8_t cloB = random(255);
 
-    Serial.print("color "); Serial.println(ws2812fx.Color(cloR, cloG, cloB));
+    Serial.print("color "); Serial.println( Wheel(cloR));
     uint8_t next_mode =  random(0, ws2812fx.getModeCount());
 //    uint8_t next_mode = (ws2812fx.getMode() + 1) % ws2812fx.getModeCount();
     ws2812fx.setMode(next_mode);
 //    ws2812fx.setMode(0);
-    ws2812fx.setColor(ws2812fx.Color(cloR, cloG, cloB));
-//    ws2812fx.setColor(DEFAULT_COLOR);
+//    ws2812fx.setColor(ws2812fx.Color(cloR, cloG, cloB));
+    ws2812fx.setColor(Wheel(cloR));
     Serial.print("mode is "); Serial.print(next_mode);Serial.print(" ");Serial.println(ws2812fx.getModeName(ws2812fx.getMode()));
     auto_last_change = now;
   }

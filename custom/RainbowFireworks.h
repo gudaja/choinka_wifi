@@ -43,7 +43,7 @@ uint16_t rainbowFireworks(void) {
   WS2812FX::Segment* seg = ws2812fx.getSegment(); // get the current segment
   uint16_t seglen = seg->stop - seg->start + 1;
 
-  ws2812fx.setBrightness(255); // force full brightness
+ // ws2812fx.setBrightness(255); // force full brightness
   ws2812fx.fade_out();
 
   for(uint16_t i=seg->start + 6; i <= seg->stop - 6; i++) {
